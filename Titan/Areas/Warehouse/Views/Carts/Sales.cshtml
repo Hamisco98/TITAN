@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Salse - Warehouse";
+    DateTime todayDate = DateTime.Now;
+}
+
+Today 
+<div class="" id="Main--Carts">
+</div>
+<br /><br />
+Total
+<div id="total">
+
+</div>
+
+<script>
+    const api = "https://localhost:44321/api/shoppingcart/";
+
+    var utc = new Date().toJSON().slice(0,10).replace(/-/g,'/');
+
+    var todaySale = 0, TodayCost = 0, TodayProfit = 0, TotalSale = 0, TotalCost = 0, TotalProfit = 0;
+
+    var datq;
+    
+
+    $(document).ready(function()
+    {
+        $.get(api)
+         .done(function(data)
+         {
+             datq = data;
+             if(data.length > 0)
+             {
+                 for(var i = 0; i < data.length; i++)
+                 {
+                     if(data[i].isSuccessful)
+                     {
+                        var date = new Date(data[i].date).toJSON().slice(0,10).replace(/-/g,'/');
+                        if(utc == date)
+                        {
+                            todaySale += data[i].totalPrices;
+                            TodayCost += data[i].totalCosts;
+                        }
+                        TotalSale += data[i].totalPrices;
+                        TotalCost += data[i].totalCosts;
+                     }
+                 }
+                 TodayProfit = todaySale - TodayCost;
+                 TotalProfit = TotalSale - TotalCost
+                 $('#Main--Carts').text("Sale : " + todaySale + " | Cost : " + TodayCost + " | Profit : " + TodayProfit)
+                 $('#total').text("Sale : " + TotalSale + " | Cost : " + TotalCost + " | Profit: " + TotalProfit)
+             }
+             else
+             {
+                 alertify.error("No Carts");
+             }
+         })
+         .fail(function(data)
+         {
+
+         });
+    });
+</script>

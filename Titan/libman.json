@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "datatables@1.10.21",
+      "destination": "wwwroot/datatables/"
+    },
+    {
+      "library": "twitterlib.js@1.0.9",
+      "destination": "wwwroot/lib/twitterlib.js/"
+    }
+  ]
+}

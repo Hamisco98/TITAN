@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Warehouse - Dashboard";
+}
+
+<div class="row">
+    <div class="col-sm-3"> 
+        <div class="card" style="width: 18rem;">
+            <img src="~/images/Grocary.jpg" class="card-img-top" style="max-height:200px" alt="prduct image">
+            <div class="card-body d-grid gap-2 mx-auto">
+                <h5 class="card-title">Products</h5>
+                    <p class="card-text">There Is About 1500 Products...</p>
+                <a asp-area="Warehouse" asp-controller="Products" asp-action="Index" class="btn btn-primary">Go Fetch</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-sm-3"> 
+        <div class="card" style="width: 18rem;">
+            <img src="~/images/carts.webp" class="card-img-top" style="max-height:200px" alt="prduct image">
+            <div class="card-body d-grid gap-2 mx-auto">
+                <h5 class="card-title">Shopping Carts</h5>
+                    <p class="card-text">There Is About 1500 Products...</p>
+                <a asp-area="Warehouse" asp-controller="Carts" asp-action="ShoppingCarts" class="btn btn-primary">Go Fetch</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-3"> 
+        <div class="card" style="width: 18rem;">
+            <img src="~/images/money.webp" class="card-img-top" style="max-height:200px" alt="prduct image">
+            <div class="card-body d-grid gap-2 mx-auto">
+                <h5 class="card-title">Sales</h5>
+                    <p class="card-text">There Is About 1500 Products...</p>
+                <a asp-area="Warehouse" asp-controller="Carts" asp-action="Sales" class="btn btn-primary">Go Fetch</a>
+            </div>
+        </div>
+    </div>
+</div>

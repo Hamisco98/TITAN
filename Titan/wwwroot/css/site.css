@@ -1,0 +1,245 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+    font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+/* User Prfile */
+.ProfilePicture
+{
+    width : 250px;
+    height : 250px;
+    object-fit : cover;
+}
+.avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: fill;
+}
+
+/* Admin Area */
+.side-admin-navbar .header-collapse {
+    padding: 24px;
+}
+.side-admin-navbar .area-controllers-actions {
+    border-bottom: 1px solid #cbcbcb;
+}
+.side-admin-navbar .admin-button {
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 1rem;
+    padding-left: 1.5rem;
+}
+.side-admin-navbar .Collapse_Roles {
+    width: 90%;
+    margin: auto;
+}
+.side-admin-navbar .admin-button:hover {
+    background: #d2d2d2;
+}
+
+.side-admin-navbar .titan-Btn {
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid #d2d2d2;
+    padding: 1rem;
+    padding-left: 1.5rem;
+}
+
+.side-admin-navbar .titan-Btn:hover {
+    background: #d2d2d2;
+}
+
+
+/* Warehouse */
+.marginZero
+{
+    margin : 0;
+}
+.noDataFound {
+    text-align: center;
+    background: #e3e3e3;
+    padding: 1rem;
+}
+
+.Pagination {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    font-weight: bold;
+}
+.underline {
+    text-decoration: underline;
+    color: #175bd6;
+}
+.entries-search {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    align-items: center;
+    border: 1px solid #b6b6b67a;
+    border-radius: 10px;
+    font-weight: bold;
+}
+.form-inline-custom {
+    display: flex;
+    column-gap: 2rem;
+}
+.postNewProduct {
+    padding: 2rem;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+
+/* Shopping Carts */
+.cart-info {
+    padding: 1rem;
+    border: 1px solid #cececebd;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.carts-header {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    margin-top: 1rem;
+}
+.carts-header .carts-blocks {
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+    column-gap: 1rem;
+    justify-content: center;
+}
+
+.carts-body {
+    margin-top: 1rem;
+    border: 1px solid #dee2e6;
+    padding: 1rem;
+    border-radius: 10px;
+}
+.carts-body-container {
+    display: flex;
+}
+.noActiveCarts {
+    text-align: center;
+}
+.cartBody_controller {
+    width: 25%;
+    padding: 0rem 0.5rem;
+    border-right: 1px solid #dee2e6;
+}
+.cartBody_items {
+    width: 74%;
+    padding: 0rem 1rem;
+}
+.cartBody_items--null {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.AddByBarcode_container {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+.AddByBarcodeLable, .addByName, .CustomerPaiedLable {
+    text-align: center;
+    width: 90%;
+    margin: auto;
+    display: block;
+    font-weight: bold;
+    color: #198754;
+}
+.addByName {
+    color: #0d6efd
+}
+.CustomerPays-Div {
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.AddByBarcodeInput, .CustomerPaiedInput, .addByName-input {
+    display: block;
+    width: 90%;
+    margin: auto;
+    margin-top: 0.3rem;
+    padding: 0.3rem;
+    text-align: center;
+    border: 1px solid #198754;
+    border-radius: 4px;
+}
+.addByName-input {
+    border-color: #0d6efd;
+}
+.AddByBarcodeButton, .CustomerRest-Btn {
+    display: block;
+    width: 90%;
+    margin: auto;
+    margin-top: 1rem;
+}
+
+#noItemsInCart {
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px;
+}
+.updatedBtnItem
+{
+    vertical-align: -webkit-baseline-middle;
+    width: 60px;
+    text-align: center;
+    border: 1px solid #198754;
+    border-radius: 5px;
+}
+
+.button-div-container {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+}
+.Delete-Cart-Btn
+{
+    width: 90%;
+}
+
+.AddByName-Div {
+    border-top: 1px solid #dee2e6;
+}
+.productsList {
+    width: 90%;
+    margin: auto;
+    text-align: right;
+    display: block;
+    margin-top: 1rem;
+    border-radius: 5px;
+    height: 15rem;
+    border-color: #0d6efd;
+    padding-right: 0.5rem;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}

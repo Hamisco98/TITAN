@@ -1,0 +1,8 @@
+﻿@model RoleFormViewModel
+<!-- Modal -->
+<form method="post" asp-area="Identity" asp-controller="Roles" asp-action="AddRole">
+    <label asp-for="RoleName" for="inlineFormInput">Add New Role</label>
+    <input class="" type="text" asp-for="RoleName" id="inlineFormInput" placeholder="Role Name..." aria-label="Role Neme" aria-describedby="basic-addon2">
+    <button type="submit" class="btn btn-primary">Save</button>
+    <span asp-validation-for="RoleName" class="text-danger"></span>
+</form>

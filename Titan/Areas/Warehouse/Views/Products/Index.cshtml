@@ -1,0 +1,426 @@
+﻿@using Titan.Areas.Warehouse.Models
+@using Titan.Data
+@model IEnumerable<Products>
+@{
+    ViewData["Title"] = "Product List";
+    var productsJson = Json.Serialize(Model);
+    var sorted = Model.OrderBy(m => m.Name);
+    var productsList = Model.ToList();
+}
+<div class="postNewProduct">
+    <div class="mb-1" style="font-weight:bolder">Add New Product</div>
+    <div>
+        <form>
+          <div class="row">
+            <div class="col">
+              <input id="productName" type="text" class="form-control" placeholder="Name">
+            </div>
+            <div class="col">
+              <input id="productCost" type="number" class="form-control" placeholder="Cost">
+            </div>
+            <div class="col">
+              <input id="productPrice" type="number" class="form-control" placeholder="Price">
+            </div>
+            <div class="col">
+              <input id="productBarcode" type="number" class="form-control" placeholder="Barcode">
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-outline-primary form-control" id="postNewProduct">Save</button>
+            </div>
+          </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <div class="entries-search">
+        <div class="entries-div">
+            <span>Show</span>
+            <select name="tableEntires" id="tableEntires">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+            <span>Entries</span>
+        </div>
+        <div class="search-div">
+              <form class="form-inline form-inline-custom">
+                <input id="searchBar" class="form-control mr-sm-2" type="search" placeholder="Search... " aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+              </form>
+        </div>
+    </div>
+    <div id="tableing">
+        <table class="table table-striped table-hover marginZero">
+            <thead>
+                <tr>
+                    <th id="colName" style="width: 55%;">Name</th>
+                    <th id="colCost">Cost</th>
+                    <th id="colPrice">Price</th>
+                    <th id="colBarcode">Barcode</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+        <div id="noDataFound"></div>
+        <div class="Pagination">
+            <div class="">
+                <span>Show</span>
+                <span id="paginationStart" class="underline"></span>
+                <span>To</span>
+                <span id="paginationEnd" class="underline"></span>
+                <span>From</span>
+                <span id="paginationTotal" class="underline"></span>
+            </div>
+            <div class="">
+                <button type="button" class="btn btn-outline-secondary" id="previous">Previous</button>
+                <span id="paginationsPages"></span>
+                <button type="button" class="btn btn-outline-secondary"  id="next">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--------------------------------------------->
+
+<script>
+//Global Variables
+var Data = @productsJson, 
+    tableEntries = 10, 
+    searchKey, 
+    sortByNameDir = true, 
+    sortByCostDir = true, 
+    sortByPriceDir = true, 
+    sortByBarcodeDir = true,
+    rowIndex = 0;
+
+var paginationStart, paginationEnd, paginationTotal, toEnd = 10;
+var api = "https://localhost:44321/api/products/";
+var da;
+$(document).ready(function ()
+{
+    tableEntries = $('#tableEntires').val();
+    rowIndex = 0;
+    toEnd = tableEntries;
+    GenerateData(Data);
+    PagenationsActions();
+});
+
+//Funstions Calls
+Search(Data);
+Entries();
+Sort();
+POST();
+
+$('#getData').click(function()
+{
+    $.get
+    (
+        api + '2750422396',
+        function(data, status)
+        {
+            console.log(data);
+        }
+    );
+});
+
+
+//Functions Intializations
+function Search(products)
+{
+    $('#searchBar').keyup(function ()
+    {
+        searchKey = document.getElementById('searchBar').value.trim().toLowerCase();
+        if(searchKey != null && searchKey.trim() != '')
+        {
+            Data = [];
+            for(var i = 0; i < products.length; i++)
+            {
+                if ((products[i].name != null && products[i].name.toLowerCase().includes(searchKey)) || (products[i].barcode != null && products[i].barcode.toLowerCase().includes(searchKey))) Data.push(products[i]);
+            }
+            if(Data.length > 0)
+            {
+                GenerateData(Data);
+            }
+            else
+            {
+                NoDateFound(searchKey);
+            }
+        }
+        else
+        {
+            Data = @productsJson;
+            GenerateData(Data);
+        }
+    })
+}
+
+function Entries()
+{
+    $('#tableEntires').change(function()
+    {
+        tableEntries = $('#tableEntires').val();
+
+        toEnd = rowIndex != 1 ? (Number(toEnd) + (Number(tableEntries) - (Number(toEnd) - rowIndex))) : Number(tableEntries);
+
+        Data.length > 0 ? GenerateData(Data) : NoDateFound(searchKey);
+    });
+}
+
+function GenerateData(products)
+{
+    $('#tableBody').html('');
+    $('#noDataFound').html('');
+    $('#noDataFound').removeClass('noDataFound');
+
+    for(var i = rowIndex; i < products.length && i <= toEnd; i++)
+    {
+        var row = "<tr id='" + products[i].id + "'><td>" + products[i].name + "</td><td>" + products[i].cost + "</td><td>" + products[i].price + "</td><td>" + products[i].barcode + "</td>";
+        row += "<td style='text-align:center'><button style='margin-right:1rem' class='btn btn-outline-danger' onclick=Delete('" + products[i].id + "')>Delete</button>";
+        row += "<button class='btn btn-outline-warning' onclick=EDIT('" + products[i].id + "')>EDIT</button></td></tr>";
+        
+        $('#tableBody').append(row);
+    }
+    Pagenations();
+}
+
+function NoDateFound(searchKey)
+{
+    $('#tableBody').html('');
+    var row = "No Data Found With The Search Key '" + searchKey + "'.";
+    $('#noDataFound').text(row);
+    $('#noDataFound').addClass('noDataFound');
+    Pagenations();
+}
+
+function Sort()
+{
+    //Sort By Name
+    $('#colName').click(function()
+    {
+        if(sortByNameDir)
+        {
+            sortByNameDir = !sortByNameDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+                return x < y ? -1 : x > y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+        else
+        {
+            sortByNameDir = !sortByNameDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+                return x > y ? -1 : x < y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+    });
+
+
+    //Sort By Cost
+    $('#colCost').click(function()
+    {
+        if(sortByCostDir)
+        {
+            sortByCostDir = !sortByCostDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.cost;
+                var y = b.cost;
+                return x < y ? -1 : x > y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+        else
+        {
+            sortByCostDir = !sortByCostDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.cost;
+                var y = b.cost;
+                return x > y ? -1 : x < y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+    });
+
+
+    //Sort By Price
+    $('#colPrice').click(function()
+    {
+        if(sortByPriceDir)
+        {
+            sortByPriceDir = !sortByPriceDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.price;
+                var y = b.price;
+                return x < y ? -1 : x > y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+        else
+        {
+            sortByPriceDir = !sortByPriceDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = a.price;
+                var y = b.price;
+                return x > y ? -1 : x < y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+    });
+
+
+    //Sort By Barcode
+    $('#colBarcode').click(function()
+    {
+        if(sortByBarcodeDir)
+        {
+            sortByBarcodeDir = !sortByBarcodeDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = (a.barcode).toString().toLowerCase();
+                var y = (b.barcode).toString().toLowerCase();
+                return x < y ? -1 : x > y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+        else
+        {
+            sortByBarcodeDir = !sortByBarcodeDir;
+            Data = Data.slice(0);
+            Data.sort(function (a,b)
+            {
+                var x = (a.barcode).toString().toLowerCase();
+                var y = (b.barcode).toString().toLowerCase();
+                return x > y ? -1 : x < y ? 1 : 0;
+            });
+            GenerateData(Data);
+        }
+    });
+}
+
+function Pagenations()
+{
+    paginationStart = Data.length > 0 ? (rowIndex == 0 ? (rowIndex + 1) : rowIndex) : 0;
+    paginationEnd = Data.length > 0 ? (Data.length >= toEnd ? toEnd : Data.length) : 0;
+    paginationTotal = Data.length > 0 ? Data.length : 0;
+    $('#paginationStart').text(paginationStart);
+    $('#paginationEnd').text(paginationEnd);
+    $('#paginationTotal').text(paginationTotal);
+}
+
+function PagenationsActions()
+{
+    $('#previous').click(function ()
+    {
+        console.log(tableEntries);
+        console.log(toEnd);
+        if(Data.length > tableEntries && rowIndex > 0)
+        {
+            rowIndex = rowIndex > tableEntries ? (rowIndex - Number(tableEntries) - 1) : 0;
+            toEnd = (Number(toEnd) - Number(tableEntries) - 1) > Number(tableEntries) ? (Number(toEnd) - Number(tableEntries) - 1) : Number(tableEntries);
+            GenerateData(Data);
+        }
+    });
+
+    $('#next').click(function ()
+    {
+        if(Data.length > tableEntries && toEnd <= Data.length)
+        {
+            rowIndex = rowIndex < Data.length ? (rowIndex + Number(tableEntries) + 1) : rowIndex + Number(tableEntries);
+            toEnd = Number(toEnd) + Number(tableEntries) + 1;
+            GenerateData(Data);
+        }
+    });
+}
+
+function POST()
+{
+    $("#postNewProduct").click(function()
+    {
+        var name = $('#productName').val(),
+            cost = $('#productCost').val(),
+            price = $('#productPrice').val(),
+            barcode = $('#productBarcode').val();
+        if(Number(price) > Number(cost))
+        {
+            $.post
+            (
+                api,
+                {
+                    "name": name,
+                    "cost": cost,
+                    "price" : price,
+                    "barcode" : barcode
+                }
+            )
+            .done(function(data)
+            {
+                var tr = document.createElement('tr');
+                tr.innerHTML = "<td>" + name + "</td><td>" + cost + "</td><td>" + price + "</td><td>" + barcode + "</td>" +
+                                "<td style='text-align:center'><button style='margin-right:1rem' class='btn btn-outline-danger' onclick=Delete('" + data.id + "')>Delete</button>" +
+                                "<button class='btn btn-outline-warning' onclick=EDIT('" + data.id + "')>EDIT</button></td></tr>";
+                document.getElementById('tableBody').prepend(tr);
+
+                name = $('#productName').val('');
+                cost = $('#productCost').val('');
+                price = $('#productPrice').val('');
+                barcode = $('#productBarcode').val('');
+
+                //Alert With Success
+                alertify.success('Product Added Successfully');
+            })
+            .fail(function(data)
+            {
+                var errorModel = data.responseJSON.errors != null ? data.responseJSON.errors : data.responseJSON;
+                var errorsCount = Object.keys(errorModel).length;
+                if(errorsCount > 0)
+                {
+                    if(errorModel.Barcode != null) alertify.error(data.responseJSON.Barcode[0]);
+                    else
+                    {
+                        if(errorModel.Name != null) alertify.error(errorModel.Name[0]);
+                        if(errorModel.Cost != null) alertify.error(errorModel.Cost[0]);
+                        if(errorModel.Price != null) alertify.error(errorModel.Price[0]);
+                        if(errorModel.Barcode != null) alertify.error(errorModel.Barcode[0]);
+                    }
+                }
+
+            });
+        }
+        else
+        {
+            alertify.error("The Cost Should Be Bigger Then The Price");
+        }
+    });
+}
+
+function Delete(id)
+{
+    //
+}
+
+function EDIT(id)
+{
+    //
+}
+</script>

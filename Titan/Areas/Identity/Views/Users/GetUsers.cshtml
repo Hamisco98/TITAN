@@ -1,0 +1,47 @@
+﻿@model IEnumerable<UserViewModel>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1>Users</h1>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Image</th>
+      <th scope="col">Name</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+      <th scope="col">Roles</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach(var user in Model)
+    {
+    <tr>
+         <td>
+             @if(user.ImagePicture is not null)
+            {
+                <img class="avatar" id="ProfilePicture" alt="@user.Username" src="data:image/*;base64,@(Convert.ToBase64String(user.ImagePicture))"/>
+            }
+            else
+            {
+                <img class="avatar" id="ProfilePicture" alt="@user.Username" src="~/images/no_image.png"/>
+            }
+         </td>   
+         <td>@user.Name</td>
+         <td>@user.Username</td>
+         <td>@user.Email</td>
+         <td>@string.Join(" , ",user.Roles.ToList())</td>
+         <td>
+             <a class="btn btn-danger" asp-area="Identity" asp-controller="Users" asp-action="ManageRoles" asp-route-UserId="@user.ID">Manage Roles</a>
+         </td>
+     </tr>
+    }
+    </tbody>
+</table>
+<!--
+
+&#64; => at
+
+-->

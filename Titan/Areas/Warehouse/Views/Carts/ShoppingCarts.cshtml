@@ -1,0 +1,519 @@
+﻿@{
+    ViewData["Title"] = "Product List";
+}
+<div class="main-holder">
+    <div class="cart-info">
+        <span style="font-weight: bold;">Shopping Carts</span>
+        <button class="btn btn-outline-primary" type="button" id="newCart">Create New Cart</button>
+    </div>
+    <div class="carts-header">
+        <div class="carts-blocks" id="carts-blocks">
+            <div class="noActiveCarts hide">No Active Carts</div>
+        </div>
+    </div>
+    <div class="carts-body hide" id="carts-body">
+        <div class="carts-body-container">
+            <div class="cartBody_controller">
+                <input class="currentCartID" hidden />
+                <div class="button-div-container">
+                    <button class="btn btn-warning" id="cartTotalPrice" disabled style="width:90%">Total : 458</button>
+                </div>
+                <div class="AddByBarcode_container">
+                    <div>
+                        <label for="byBarcodeScanner" class="AddByBarcodeLable">Add By Barcode</label>
+                        <input class="AddByBarcodeInput" name="byBarcodeScanner" id="byBarcodeScanner" placeholder="##########" type="number"/>
+                    </div>
+                    <div class="AddByName-Div mt-4 mb-4 pt-4">
+                        <label for="addByName-input" class="addByName">Add By Name</label>
+                        <input class="addByName-input" name="addByName-input" id="searchProduct" placeholder="Search By Name"/>
+                        <select id="productsList" class="productsList" multiple></select>
+                        <button id="addByName-button" class="btn btn-primary CustomerRest-Btn">Add</button>
+                    </div>
+                    <div class="mt-4 mb-4 CustomerPays-Div">
+                        <label for="CustomerPays-input" class="CustomerPaiedLable">Customer Pays</label>
+                        <input class="CustomerPaiedInput" name="CustomerPays-input" id="CustomerPays-input" placeholder="0000" type="number"/>
+                        <button id="CustomerPaysRest_Btn" class="btn btn-primary CustomerRest-Btn hide" disabled>Rest : </button>
+                    </div>
+                    <button type="button" id="checkout" class="AddByBarcodeButton btn btn-outline-success">Checkout</button>
+                </div>
+                <div class="button-div-container">
+                    <button type="button" id="deleteCart" class="btn btn-outline-danger Delete-Cart-Btn">Delete Cart</button>
+                </div>
+            </div>
+            <div class="cartBody_items" id="cartBody_items">
+                <table class="table table-striped table-hover cart---item hide" id="cart---item-Table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Sub Total</th>
+                            <th style="text-align:center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartItem--table-body">
+                    </tbody>
+                </table>
+                <div id="noItemsInCart" class="hide">
+                    There Is No Items In The Cart!
+                </div>
+            </div>
+        </div>
+        <div class="noActiveCarts hide">No Active Carts</div>
+    </div>
+</div>
+<div class="pyro hide" id="pyroAnimation">
+  <div class="before"></div>
+  <div class="after"></div>
+</div>
+<script>
+    const api = "https://localhost:44321/api/shoppingcart/";
+    const ProductGuid = '00000000-0000-0000-0000-000000000000';
+    var cartIndex = 1;
+    var products;
+
+    //Get & Set : All Active Shopping Cart
+    $(document).ready(function()
+    {
+        $.get(api)
+         .done(function(data)
+         {
+             if(data.length > 0)
+             {
+                 for(var i = 0; i < data.length; i++)
+                 {
+                     if(data[i].isActive)
+                     {
+                         //Create The Cart Button
+                        var cartButton = document.createElement('div');
+                        cartButton.setAttribute('class', 'carts-block btn btn-outline-primary');
+                        cartButton.setAttribute('id', data[i].id);
+                        cartButton.setAttribute('onclick', 'OpenCart("' + data[i].id + '")');
+                        cartButton.innerHTML = '### ' + cartIndex + ' ###';
+                        cartIndex++;
+
+                        document.getElementById('carts-blocks').append(cartButton);
+                     }
+                 }
+                 if ($('.carts-block').length == 0) $('.noActiveCarts').removeClass('hide');
+             }
+             else
+             {
+                 $('.noActiveCarts').removeClass('hide');
+             }
+         })
+         .fail(function(data)
+         {
+
+         });
+         GetProducts();
+    });
+
+    //Call The Functions
+    NewPOSCart();
+    AddItemByBarcode();
+    AddItemByNAme();
+    DeleteCart();
+    CustomerPays();
+    Checkout();
+
+    //Functions
+    function NewPOSCart()
+    {
+        $('#newCart').click(function()
+        {
+            $('#carts-body').addClass('hide');
+            $('.noActiveCarts').addClass('hide');
+            $('#byBarcodeScanner').val('');
+            var shoppingCart_ID;
+            $.post(api)
+             .done(function(data)
+             {
+                //Create The Cart Button
+                var cartButton = document.createElement('div');
+                cartButton.setAttribute('class', 'carts-block btn btn-outline-primary');
+                cartButton.setAttribute('id', data.id);
+                cartButton.setAttribute('onclick', 'OpenCart("' + data.id + '")');
+                cartButton.innerHTML = '### ' + cartIndex + ' ###';
+                cartIndex++;
+
+                document.getElementById('carts-blocks').append(cartButton);
+
+                //Create The Cart Body
+                var cartBody = document.createElement('div');
+                cartBody.setAttribute('class', 'carts-body-container hide');
+                cartBody.setAttribute('id', 'cartBody_' + data.id);
+                cartBody.innerHTML = 'Here The Work Flow ' + data.id;
+            
+                document.getElementById('carts-body').append(cartBody);
+             })
+             .fail(function(data)
+             {
+                 console.log(data);
+             });
+        });
+    }
+
+    function DeleteCart()
+    {
+        $('#deleteCart').click(function() 
+        {
+            alertify.confirm
+            (
+                "Are You Sure You Want To Delete This Cart? This Process Can't Be Undo!!.",
+                function()
+                {
+                    var shoppingCartID = $('.currentCartID').attr('id');
+                    var api_ID = api + shoppingCartID + "/1";
+                    fetch
+                    (
+                        api_ID, 
+                        {
+                            method: "DELETE",
+                            headers: 
+                            {
+                                'Content-type': 'application/json'
+                            }
+                        }
+                    )
+                    .then((data) => 
+                    {
+                        if(data.status == 200)
+                        {
+                            $('#carts-body').addClass('hide');
+                            $('div[id=' + shoppingCartID + ']').remove();
+                            alertify.success("Cart Has Been Deleted!");
+                            
+                            if ($('.carts-block').length == 0)
+                            $('.noActiveCarts').removeClass('hide');
+                        }
+                        else 
+                        {
+                            data.json().then((e) => 
+                            {
+                                alertify.error(e.value);
+                                $('#byBarcodeScanner').val('');
+                                $('#byBarcodeScanner').focus();
+                            });
+                        }
+                    })
+                    .catch((error) => 
+                    {
+                        alertify.warning(error);
+                        $('#byBarcodeScanner').val('');
+                        $('#byBarcodeScanner').focus();
+                    });
+                },
+                function()
+                {
+                    alertify.warning('Nice, Cart Is Still There...');
+                }
+            );  
+        });
+    }
+
+    function OpenCart(id)
+    {
+        $('.currentCartID').attr('id',id);
+        $('#byBarcodeScanner').focus();
+        //Call The Shopping Cart;
+        var api_ID = api + id;
+        $.get(api_ID)
+         .done(function(data)
+         {
+             GetCartItemss(data);
+             $('#productsList').html(products);
+         })
+         .fail(function(data)
+         {
+             console.log(data);
+         });
+    }
+
+    function GetCartItemss(data)
+    {
+        $('#carts-body').removeClass('hide');
+        $('#cartBody_items').removeClass('cartBody_items--null');
+        $('#noItemsInCart').addClass('hide');
+        $('#cartItem--table-body').html('');
+
+        //Display The Cost
+        $('#cartTotalPrice').text('Total : ' + data.totalPrices);
+             
+        //Display All The Items
+        if(data.cartItem.length > 0)
+        {
+            $('#cart---item-Table').removeClass('hide');
+            var itemLength = data.cartItem.length;
+            for(i = 0; i < itemLength; i++)
+            {
+                var item = data.cartItem[i];
+                var actions = "<td style='text-align: center;'><button class='btn btn-outline-danger' onclick=DeleteItem('" + item.id + "')>Delete</button>" + 
+                              "<button class='ms-2 btn btn-outline-warning' onclick=UpdateItem('" + item.productID + "')>Update</button></td></tr>";
+                
+                var row = "<tr id='" + item.productID + "'><td>" + item.productName + "</td><td>" + item.price + "</td><td><input class='updatedBtnItem' type='number' min='1' id='" + item.productID + "' value='" + item.quantity + "'/></td><td>" + item.subTotalPrice + "</td>" + actions;
+
+                $('#cartItem--table-body').prepend(row);
+            }
+            UpdateItemQty();
+        }
+        else
+        {
+            $('#cart---item-Table').addClass('hide');
+            $('#cartBody_items').addClass('cartBody_items--null');
+            $('#noItemsInCart').removeClass('hide');
+        }
+    }
+    
+    //AddItem(Quantity, ProductID)
+    function AddItemByBarcode()
+    {
+        //$('#AddByBarcodeBtn').click(function()
+        $('#byBarcodeScanner').change(function()
+        {
+            var barcode = $('#byBarcodeScanner').val();
+
+            if(barcode != null && barcode != '')
+            {
+                AddItemAPI(1, ProductGuid, barcode);
+            }
+            else
+            {
+                alertify.error('Barcoded Must Added!');
+            }
+        });
+    }
+
+    function DeleteItem(id)
+    {
+        var api_ID = api + id;
+        fetch
+        (
+            api_ID, 
+            {
+                method: "DELETE",
+                headers: 
+                {
+                    'Content-type': 'application/json'
+                }
+            }
+        )
+        .then((data) => 
+        {
+            if(data.status == 200)
+            {
+                data.json().then((e) => 
+                {
+                    GetCartItemss(e);
+                    //alertify.success('👍');
+                    $('#byBarcodeScanner').val('');
+                    $('#byBarcodeScanner').focus();
+                });
+            }
+            else 
+            {
+                data.json().then((e) => 
+                {
+                    alertify.error(e.value);
+                    $('#byBarcodeScanner').val('');
+                    $('#byBarcodeScanner').focus();
+                });
+            }
+        })
+        .catch((error) => 
+        {
+            alertify.warning(error);
+            $('#byBarcodeScanner').val('');
+            $('#byBarcodeScanner').focus();
+        });     
+    }
+
+    function UpdateItem(id)
+    {
+        alertify.warning('Still Under Develop!');
+    }   
+
+    function UpdateItemQty()
+    {
+        $(".updatedBtnItem").change(function(){
+            alertify.warning('Still Under Develop!');
+            //var _barcode = ('#byBarcodeScanner').val('0');
+            var _itemQuantity = this.value;
+            var _itemID = this.id;
+            //AddItem(_itemQuantity, _itemID);
+          });
+    }
+
+    function CustomerPays()
+    {
+        $('#CustomerPays-input').keyup(function()
+        {
+            var shoppingCartTotal = $('#cartTotalPrice').text();
+            shoppingCartTotal = shoppingCartTotal.split(':');
+            shoppingCartTotal = Number(shoppingCartTotal[1]);
+            
+            if(shoppingCartTotal == 0)
+            {
+                alertify.warning("The Cart Is Empty!");
+            }
+            else
+            {
+                if(this.value != null && this.value != '')
+                {
+                    var rest = this.value - shoppingCartTotal;
+                    $('#CustomerPaysRest_Btn').removeClass('hide');
+                    $('#CustomerPaysRest_Btn').text('Rest : ' + rest);
+                }
+                else
+                {
+                    $('#CustomerPaysRest_Btn').addClass('hide');
+                }
+            }
+        });
+    }
+
+    function Checkout()
+    {
+        $('#checkout').click(function()
+        {
+            var shoppingCartID = $('.currentCartID').attr('id');
+            var api_ID = api + shoppingCartID + "/" + true;
+            $.post(api_ID)
+             .done(function(data)
+             {
+                //Remove The Cart Body And it's button
+                $('#carts-body').addClass('hide');
+                $('div[id=' + shoppingCartID + ']').remove();
+                            
+                //Check If There any Shopping Cart
+                if ($('.carts-block').length == 0)
+                $('.noActiveCarts').removeClass('hide');
+
+                //Show Alert
+                alertify.success("Congratulations 🥳🤑💵");
+                $('#pyroAnimation').removeClass('hide');
+                setTimeout(function(){
+                    $('#pyroAnimation').addClass('hide');
+                },2000);
+             })
+             .fail(function(data)
+             {
+                 alertify.error(data.responseText);
+             });
+        });
+    }
+
+    function GetProducts()
+    {
+        var product_api = "https://localhost:44321/api/products/";
+        $.get(product_api)
+         .done(function(data)
+         {
+             if(data.length > 0)
+             {
+                 for(var i = 0; i < data.length; i++)
+                 {
+                    products += "<option id='" + data[i].id + "'>" + data[i].name + "</option>";
+                 }
+             }
+             else
+             {
+                 alertify.error("There Are No Product In The Database");
+             }
+         })
+         .fail(function(data)
+         {
+
+         });
+    }
+
+    function AddItemByNAme()
+    {
+        var productList = document.getElementById('productsList');
+        
+        $('#searchProduct').keyup(function()
+        {
+            //alertify.warning(this.value);
+            FilterSelectorSearch(this.value);
+        });
+
+        const FilterSelectorSearch = searchTerm => 
+        {
+            productList.childNodes.forEach(option => {
+                let lable = option.innerText;
+                if (lable != null)
+                {
+                    if (lable.indexOf(searchTerm) != -1)
+                    {
+                        option.style.display = "block";
+                    }
+                    else option.style.display = "none";
+                }
+            })
+        }
+
+        $('#addByName-button').click(function()
+        {
+            if(productList.value != null && productList.value)
+            {
+                $('#byBarcodeScanner').focus();
+                var option = $('#productsList').find(":selected");
+                var productId = option.attr('id');
+                AddItemAPI(1, productId, "empty")
+                $('#searchProduct').val('');
+            }
+            else
+            {
+                alertify.error("Please Select A Product First!!");
+                $('#byBarcodeScanner').focus();
+            }
+        });
+    }
+
+    function AddItemAPI(quantity, prdID, barcode)
+    {
+        var shoppingCartID = $('.currentCartID').attr('id');
+        const data = { shoppingCartID: shoppingCartID, barcode : barcode, quantity : quantity, productID : prdID };
+        fetch
+        (
+            api, 
+            {
+                method: 'PUT',
+                headers: 
+                {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }
+        )
+        //.then((response) => response.json())
+        .then((data) => 
+        {
+                if(data.status == 200)
+                {
+                    data.json().then((e) => 
+                    {
+                        GetCartItemss(e);
+                        //alertify.success('👍');
+                        $('#byBarcodeScanner').val('');
+                        $('#byBarcodeScanner').focus();
+                    });
+                }
+            else 
+            {
+                data.json().then((e) => 
+                    {
+                        alertify.error(e.value);
+                        $('#byBarcodeScanner').val('');
+                        $('#byBarcodeScanner').focus();
+                    });
+            }
+        })
+        .catch((error) => 
+        {
+            alertify.warning(error);
+            $('#byBarcodeScanner').val('');
+            $('#byBarcodeScanner').focus();
+        });
+    }
+</script>

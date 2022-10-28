@@ -1,0 +1,44 @@
+﻿<div class="header-collapse row border-bottom box-shadow">
+    <div>Header</div>
+</div>
+<div class="row area-controllers-actions">
+    <!-- Roles -->
+    <button class="admin-button" type="button" data-toggle="collapse" data-target="#Collapse_Roles" aria-expanded="false" aria-controls="Collapse_Roles">Roles</button>
+    <div class="collapse Collapse_Roles" id="Collapse_Roles">
+        <a class="btn titan-Btn" asp-area="Identity" asp-controller="Roles" asp-action="GetRoles">Roles List</a>
+
+        <button type="button" class="btn btn-light titan-Btn" data-toggle="modal" data-target="#exampleModalCenter">Add Role</button>
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add New Role</h5>
+                <button type="button" class="btn btn-outline-secondary close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <form method="post" asp-area="Identity" asp-controller="Roles" asp-action="AddRole">
+                    <div class="modal-body">
+                    <div class="form-group">
+                        <label for="RoleName" class="col-form-label">Role Name</label>
+                        <input name="RoleName" type="text" class="form-control" id="RoleName" required>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <hr style="margin:0" />
+    
+    <!-- Users -->
+    <button class="admin-button" type="button" data-toggle="collapse" data-target="#Collapse_Users" aria-expanded="false" aria-controls="Collapse_Users">Users</button>
+    <div class="collapse Collapse_Roles" id="Collapse_Users">
+        <a class="btn titan-Btn" asp-area="Identity" asp-controller="Users" asp-action="GetUsers">Users List</a>
+    </div>
+</div>
